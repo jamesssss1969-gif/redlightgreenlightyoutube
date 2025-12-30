@@ -1,109 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Red Light Green Light</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Light Green Light + YouTube</title>
 <style>
-body{
-  font-family:system-ui,sans-serif;
-  background:#0f172a;
-  color:#e5e7eb;
-  margin:0;
-  padding:0;
-}
-
-/* VIDEO AREA */
-#videoWrap{
-  width:100%;
-  background:#000;
-}
-#videoWrap iframe{
-  width:100%;
-  aspect-ratio:16/9;
-  border:none;
-}
-
-/* CONTROL PANEL */
-.panel{
-  background:#020617;
-  padding:20px;
-  border-radius:14px;
-  max-width:420px;
-  margin:20px auto;
-  box-shadow:0 20px 40px rgba(0,0,0,.6);
-}
-
-h1{text-align:center;margin-top:0}
-.section{margin-bottom:16px}
-label{font-size:.9rem;color:#cbd5f5}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-
-.lights{
-  display:flex;
-  justify-content:space-around;
-  margin:18px 0 10px;
-  padding:5px;
-  border-radius:12px;
-  transition:.3s;
-}
+body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#e5e7eb;display:flex;flex-direction:column;align-items:center;}
+#videoWrap{width:100%;height:60vh;background:#000;display:flex;justify-content:center;align-items:center;margin-bottom:10px;}
+#videoWrap iframe{width:100%;height:100%;border:none;}
+.panel{background:#020617;padding:20px;border-radius:14px;width:380px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.6);margin-bottom:20px;}
+h1{text-align:center;margin-top:0;}
+.section{margin-bottom:16px;}
+label{font-size:.9rem;color:#cbd5f5;display:flex;align-items:center;justify-content:space-between;}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.lights{display:flex;justify-content:space-around;margin:18px 0 10px;padding:5px;border-radius:12px;transition:.3s;}
 .lights.ready{background:#1e40af;}
-
-.light{
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  background:#1f2937;
-  opacity:.25;
-  transition:.3s;
-}
-.light.red.active{background:#ef4444;opacity:1;box-shadow:0 0 25px rgba(239,68,68,.8)}
-.light.green.active{background:#22c55e;opacity:1;box-shadow:0 0 25px rgba(34,197,94,.8)}
-.light.amber.active{background:#f59e0b;opacity:1;box-shadow:0 0 25px rgba(245,158,11,.9)}
-
-#message{text-align:center;min-height:48px;font-size:1.1rem;font-weight:600;margin-bottom:6px}
-#countdown{text-align:center;color:#60a5fa;margin-bottom:6px}
-.stopwatch{text-align:center;font-size:.85rem;color:#9ca3af}
-
-button{
-  width:100%;
-  padding:12px;
-  border-radius:999px;
-  border:none;
-  background:#1d4ed8;
-  color:#fff;
-  font-size:1rem;
-  font-weight:600;
-  cursor:pointer;
-  margin-top:10px;
-}
-button.secondary{background:#374151}
-button.secondary.active{background:#1e40af}
-
-input[type="text"]{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  background:#020617;
-  color:#e5e7eb;
-}
+.light{width:80px;height:80px;border-radius:50%;background:#1f2937;opacity:.25;transition:.3s;}
+.light.red.active{background:#ef4444;opacity:1;box-shadow:0 0 25px rgba(239,68,68,.8);}
+.light.green.active{background:#22c55e;opacity:1;box-shadow:0 0 25px rgba(34,197,94,.8);}
+.light.amber.active{background:#f59e0b;opacity:1;box-shadow:0 0 25px rgba(245,158,11,.9);}
+#message{text-align:center;min-height:48px;font-size:1.1rem;font-weight:600;margin-bottom:10px;}
+#countdown{text-align:center;font-size:1rem;color:#60a5fa;margin-bottom:8px;}
+.stopwatch{text-align:center;font-size:.9rem;color:#9ca3af;}
+button{width:100%;padding:12px;border-radius:999px;border:none;background:#1d4ed8;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;margin-top:10px;}
+button.secondary{background:#374151;}
+button.secondary.active{background:#1e40af;}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.overlay{position:fixed;inset:0;background:rgba(2,6,23,.92);display:none;align-items:center;justify-content:center;z-index:10;}
+.overlay .card{background:#020617;border-radius:14px;padding:20px;width:320px;box-shadow:0 20px 40px rgba(0,0,0,.6);text-align:center;}
+.overlay .q{font-size:1.05rem;margin-bottom:14px;}
+.overlay .btns{display:flex;gap:10px;}
+input[type="checkbox"].toggle{width:50px;height:26px;position:relative;-webkit-appearance:none;background:#374151;outline:none;border-radius:13px;transition:.3s;cursor:pointer;}
+input[type="checkbox"].toggle:checked{background:#1d4ed8;}
+input[type="checkbox"].toggle:before{content:"";position:absolute;width:22px;height:22px;border-radius:50%;top:2px;left:2px;background:#fff;transition:.3s;}
+input[type="checkbox"].toggle:checked:before{transform:translateX(24px);}
+input[type="text"]{width:100%;padding:8px;border-radius:8px;border:none;margin-bottom:10px;}
 </style>
 </head>
-
 <body>
 
-<!-- VIDEO -->
-<div id="videoWrap"></div>
+<div id="videoWrap">Enter a YouTube link below and press Load Video</div>
 
-<!-- CONTROLS -->
 <div class="panel">
 <h1>Red Light Green Light</h1>
 
 <div class="section">
-<label>YouTube video or playlist</label>
-<input type="text" id="ytInput" placeholder="Paste YouTube link">
+<input type="text" id="ytInput" placeholder="Paste YouTube URL or playlist">
+<button id="loadVideoBtn" class="secondary">Load Video</button>
+</div>
+
+<div class="section">
+<label>Red durations (s)</label>
+<div class="row">
+<label>5 <input type="checkbox" class="redDur toggle" value="5" checked></label>
+<label>10 <input type="checkbox" class="redDur toggle" value="10" checked></label>
+<label>15 <input type="checkbox" class="redDur toggle" value="15"></label>
+<label>20 <input type="checkbox" class="redDur toggle" value="20"></label>
+<label>25 <input type="checkbox" class="redDur toggle" value="25"></label>
+<label>30 <input type="checkbox" class="redDur toggle" value="30"></label>
+</div>
+</div>
+
+<div class="section">
+<label>Green durations (s)</label>
+<div class="row">
+<label>5 <input type="checkbox" class="greenDur toggle" value="5"></label>
+<label>10 <input type="checkbox" class="greenDur toggle" value="10" checked></label>
+<label>15 <input type="checkbox" class="greenDur toggle" value="15" checked></label>
+<label>20 <input type="checkbox" class="greenDur toggle" value="20"></label>
+<label>25 <input type="checkbox" class="greenDur toggle" value="25"></label>
+<label>30 <input type="checkbox" class="greenDur toggle" value="30"></label>
+</div>
+</div>
+
+<div class="section">
+<label>Enable punishments <input type="checkbox" id="punishToggle" class="toggle" checked></label>
+</div>
+
+<div class="section">
+<label>Enable Judgement Questions <input type="checkbox" id="judgementToggle" class="toggle" checked></label>
 </div>
 
 <div id="countdown"></div>
@@ -118,141 +93,161 @@ input[type="text"]{
 <div class="stopwatch" id="stopwatch">00:00</div>
 
 <button id="startBtn">Start</button>
-<button id="readyBtn" class="secondary" disabled>Ready Mode</button>
+<button id="readyBtn" class="secondary">Ready Mode</button>
 <button id="resetBtn" class="secondary">Reset</button>
 </div>
 
+<div id="overlay" class="overlay">
+<div class="card">
+<div id="question" class="q"></div>
+<div class="btns">
+<button id="yesBtn">Yes</button>
+<button id="noBtn" class="secondary">No</button>
+</div>
+</div>
+</div>
+
 <script>
-/* ========= YOUTUBE ========= */
-const ytInput=document.getElementById('ytInput');
-const videoWrap=document.getElementById('videoWrap');
-
-function loadYT(url){
-  try{
-    const u=new URL(url);
-    let src='';
-    if(u.searchParams.get('list')){
-      src=`https://www.youtube.com/embed/videoseries?list=${u.searchParams.get('list')}&autoplay=1&mute=1`;
-    }else{
-      const id=u.searchParams.get('v')||u.pathname.split('/').pop();
-      src=`https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
-    }
-    videoWrap.innerHTML=`<iframe allow="autoplay; encrypted-media" allowfullscreen src="${src}"></iframe>`;
-  }catch{}
-}
-ytInput.onchange=e=>loadYT(e.target.value);
-
-/* ========= AUDIO ========= */
+/* AUDIO */
 let audioCtx;
-function initAudio(){
-  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-}
-function tone(f,d=0.25,g=0.25){
-  initAudio();
-  const o=audioCtx.createOscillator();
-  const ga=audioCtx.createGain();
-  o.connect(ga).connect(audioCtx.destination);
-  o.frequency.value=f;
-  ga.gain.value=g;
-  o.start();
-  o.stop(audioCtx.currentTime+d);
-}
-function beep(t){
-  if(t==='red')tone(300);
-  if(t==='green')tone(750);
-  if(t==='amber')tone(520,0.35);
-  if(t==='cum'){tone(1200,0.2);setTimeout(()=>tone(1000,0.25),250);}
+function initAudio(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}}
+function tone(freq,d=0.25,g=0.25){const o=audioCtx.createOscillator();const ga=audioCtx.createGain();o.connect(ga).connect(audioCtx.destination);o.frequency.value=freq;ga.gain.value=g;o.start();o.stop(audioCtx.currentTime+d);}
+function beep(type){
+  if(type==='green') tone(750);
+  if(type==='red') tone(300);
+  if(type==='amber') tone(520,0.35);
+  if(type==='question'){tone(900,0.15);setTimeout(()=>tone(600,0.2),180);}
+  if(type==='cum'){tone(1200,0.2);setTimeout(()=>tone(1000,0.25),250);}
 }
 
-/* ========= GAME ========= */
+/* GAME TEXT */
 const authorityRed=['Hands off your cock','No touching','Hands off','Discipline required','No you dont'];
 const greenTexts=['Fuck youself','Jerk jerk jerk','Jerk that cock','Up and down, up and down','Jerk it'];
+const punishments=['Show your desperation','Fling your cock around','Hump the air','Present for inspection','Hips in the air'];
+const judgementQuestions=[
+{q:'Have you followed the rules?',yesPunish:0.2,noPunish:0.8},
+{q:'Have you been perving?',yesPunish:0.7,noPunish:0.3},
+{q:'Do you like a finger in the arse?',yesPunish:0.6,noPunish:0.4},
+{q:'Do you like to expose youself?',yesPunish:0.7,noPunish:0.3},
+{q:'Do you like being watched?',yesPunish:0.6,noPunish:0.4}
+];
 
-let phase=null,timer=null,stopwatchTimer=null,seconds=0;
-let rtcActive=false,rtcTimers=[];
+/* CORE LOGIC */
+let phase=null,timer=null,stopwatchTimer=null,timeLeft=0,secondsElapsed=0;
+let rtcActive=false,rtcTimers=[],judgementArmed=false,lastJudgementTime=0;
 
-function clearLights(){
-  ['red','green','amber'].forEach(id=>document.getElementById(id).classList.remove('active'));
-}
+function pickChecked(cls){const v=[...document.querySelectorAll(`.${cls}:checked`)].map(c=>+c.value);return v.length?v[Math.floor(Math.random()*v.length)]:5;}
+function clearLights(){['red','green','amber'].forEach(id=>document.getElementById(id).classList.remove('active'));}
 
 function setPhase(p,d){
-  phase=p;
-  clearLights();
+  phase=p;clearLights();
   document.getElementById(p).classList.add('active');
   beep(p);
-  message.textContent=
-    p==='red'
-      ?authorityRed[Math.floor(Math.random()*authorityRed.length)]
-      :greenTexts[Math.floor(Math.random()*greenTexts.length)];
-  setTimeout(nextPhase,d*1000);
+  if(p==='red') message.textContent=authorityRed[Math.floor(Math.random()*authorityRed.length)];
+  if(p==='green') message.textContent=greenTexts[Math.floor(Math.random()*greenTexts.length)];
+  if(p==='amber') message.textContent=punishments[Math.floor(Math.random()*punishments.length)];
+  timeLeft=d;
+}
+
+function tick(){timeLeft--;if(timeLeft<=0)nextPhase();}
+
+function maybeJudgement(){
+  if(!judgementToggle.checked || !judgementArmed) return false;
+  if(secondsElapsed - lastJudgementTime >= 120){
+    triggerJudgement();
+    lastJudgementTime = secondsElapsed;
+    return true;
+  }
+  return false;
 }
 
 function nextPhase(){
-  if(rtcActive) return;
-  setPhase(phase==='red'?'green':'red', phase==='red'?15:5);
+  if(maybeJudgement()) return;
+  if(phase==='red'){
+    if(punishToggle.checked && Math.random()<0.1){setPhase('amber',10);return;}
+    setPhase('green',pickChecked('greenDur'));
+  }else if(phase==='green'){setPhase('red',pickChecked('redDur'));}
+  else if(phase==='amber'){setPhase('green',pickChecked('greenDur'));}
 }
 
-function startGame(){
-  initAudio();
-  if(timer) return;
-  seconds=0;
+function startStopwatch(){
   stopwatchTimer=setInterval(()=>{
-    seconds++;
-    stopwatch.textContent=
-      String(Math.floor(seconds/60)).padStart(2,'0')+':'+
-      String(seconds%60).padStart(2,'0');
+    secondsElapsed++;
+    stopwatch.textContent=String(Math.floor(secondsElapsed/60)).padStart(2,'0')+':'+String(secondsElapsed%60).padStart(2,'0');
+    if(secondsElapsed>120) judgementArmed=true;
   },1000);
-  setPhase('red',5);
-  readyBtn.disabled=false;
 }
 
-function clearRTC(){rtcTimers.forEach(t=>clearTimeout(t));rtcTimers=[];}
+/* JUDGEMENT */
+function triggerJudgement(){
+  clearInterval(timer);
+  clearLights();
+  overlay.style.display='flex';
+  beep('question');
+  const item=judgementQuestions[Math.floor(Math.random()*judgementQuestions.length)];
+  overlay.dataset.yes=item.yesPunish;
+  overlay.dataset.no=item.noPunish;
+  question.textContent=item.q;
+}
+function resolveJudgement(ans){
+  overlay.style.display='none';
+  if(Math.random()<(ans==='yes'?overlay.dataset.yes:overlay.dataset.no)){setPhase('amber',10);}
+  else setPhase('red',pickChecked('redDur'));
+  timer=setInterval(tick,1000);
+}
 
+/* READY MODE */
+function clearRTC(){rtcTimers.forEach(t=>clearTimeout(t));rtcTimers=[];}
 function readyMode(){
+  initAudio();
   if(rtcActive) return;
   rtcActive=true;
-  clearInterval(timer);
-  clearRTC();
+  clearInterval(timer); clearRTC();
+  judgementArmed=false;
 
+  readyBtn.classList.add('active'); 
+  const lightsContainer=document.getElementById('lightsContainer');
   lightsContainer.classList.add('ready');
-  readyBtn.classList.add('active');
+  const countdownDisplay=document.getElementById('countdown');
+  let verdictCountdown=60; // seconds until verdict
+  countdownDisplay.textContent = `Verdict in: ${verdictCountdown}s`;
 
-  let countdown=60;
-  countdownEl.textContent=`Verdict in: ${countdown}s`;
-
-  function loop(){
-    if(!rtcActive) return;
-    phase=phase==='red'?'green':'red';
+  const redDur=5,greenDur=15;
+  function rtcLoop(){
+    if(!rtcActive){lightsContainer.classList.remove('ready'); readyBtn.classList.remove('active'); countdownDisplay.textContent=''; return;}
+    phase = phase==='red'?'green':'red';
     clearLights();
     document.getElementById(phase).classList.add('active');
     beep(phase);
-    message.textContent=
-      phase==='red'
-        ?authorityRed[Math.floor(Math.random()*authorityRed.length)]
-        :greenTexts[Math.floor(Math.random()*greenTexts.length)];
-    rtcTimers.push(setTimeout(loop, phase==='red'?5000:15000));
+    if(phase==='red') message.textContent=authorityRed[Math.floor(Math.random()*authorityRed.length)];
+    if(phase==='green') message.textContent=greenTexts[Math.floor(Math.random()*greenTexts.length)];
+    rtcTimers.push(setTimeout(rtcLoop, phase==='red'?redDur*1000:greenDur*1000));
   }
 
+  // start cycle
   phase='red';
+  clearLights();
   document.getElementById('red').classList.add('active');
   message.textContent=authorityRed[Math.floor(Math.random()*authorityRed.length)];
   beep('red');
-  rtcTimers.push(setTimeout(loop,5000));
+  rtcTimers.push(setTimeout(rtcLoop, redDur*1000));
 
-  const cd=setInterval(()=>{
-    countdown--;
-    countdownEl.textContent=`Verdict in: ${countdown}s`;
-    if(countdown<=0) clearInterval(cd);
+  // countdown timer for verdict
+  let countdownInterval = setInterval(()=>{
+    verdictCountdown--;
+    countdownDisplay.textContent = `Verdict in: ${verdictCountdown}s`;
+    if(verdictCountdown<=0){clearInterval(countdownInterval);}
   },1000);
 
+  // verdict
   rtcTimers.push(setTimeout(()=>{
     clearRTC();
     clearLights();
     lightsContainer.classList.remove('ready');
     readyBtn.classList.remove('active');
-    countdownEl.textContent='';
+    countdownDisplay.textContent='';
     message.textContent='Verdict incoming...';
-    setTimeout(()=>{
+    rtcTimers.push(setTimeout(()=>{
       if(Math.random()<0.5){
         message.textContent='Cum now';
         document.getElementById('green').classList.add('active');
@@ -263,16 +258,45 @@ function readyMode(){
         rtcActive=false;
         readyMode();
       }
-    },2500);
-  },60000));
+    },2500));
+  },verdictCountdown*1000));
 }
 
-/* ========= EVENTS ========= */
-startBtn.onclick=startGame;
+/* EVENTS */
+startBtn.onclick=()=>{
+  initAudio();
+  if(timer) return;
+  setPhase('red',pickChecked('redDur'));
+  timer=setInterval(tick,1000);
+  startStopwatch();
+  readyBtn.disabled=false;
+};
 readyBtn.onclick=readyMode;
-resetBtn.onclick=()=>location.reload();
+resetBtn.onclick=()=>{
+  clearInterval(timer); clearInterval(stopwatchTimer); clearRTC();
+  timer=null; stopwatchTimer=null; rtcActive=false; judgementArmed=false; lastJudgementTime=0;
+  secondsElapsed=0; clearLights(); message.textContent=''; document.getElementById('countdown').textContent='';
+  readyBtn.disabled=true;
+  readyBtn.classList.remove('active');
+};
+yesBtn.onclick=()=>resolveJudgement('yes');
+noBtn.onclick=()=>resolveJudgement('no');
 
-const countdownEl=document.getElementById('countdown');
+/* YOUTUBE EMBED */
+loadVideoBtn.onclick=()=>{
+  const url = ytInput.value.trim();
+  if(!url) return;
+  const videoWrap=document.getElementById('videoWrap');
+  let embedUrl;
+  if(url.includes('playlist')){ // playlist
+    const listMatch = url.match(/[?&]list=([^&]+)/);
+    if(listMatch) embedUrl=`https://www.youtube.com/embed/videoseries?list=${listMatch[1]}&autoplay=1`;
+  } else { // single video
+    const vidMatch = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if(vidMatch) embedUrl=`https://www.youtube.com/embed/${vidMatch[1]}?autoplay=1`;
+  }
+  if(embedUrl) videoWrap.innerHTML=`<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+};
 </script>
 </body>
 </html>
