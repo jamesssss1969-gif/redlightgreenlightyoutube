@@ -1,198 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metronome Ladder Game</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Red Light Green Light</title>
 
 <style>
-body{
-  font-family: system-ui, sans-serif;
-  background:#0f172a;
-  color:#e5e7eb;
-  display:flex;
-  justify-content:center;
-  padding:20px;
-}
-.panel{
-  background:#020617;
-  padding:20px;
-  border-radius:16px;
-  width:380px;
-  max-width:95vw;
-  box-shadow:0 20px 40px rgba(0,0,0,.6);
-}
-h1{text-align:center;margin-top:0;}
-.stat{
-  display:flex;
-  justify-content:space-between;
-  margin:6px 0;
-  font-weight:600;
-}
-input{
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e5e7eb;display:flex;justify-content:center;padding:20px;}
+.panel{background:#020617;padding:20px;border-radius:14px;width:380px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.6);}
+h1{text-align:center;margin-top:0}
+.section{margin-bottom:16px}
+label{font-size:.9rem;color:#cbd5f5}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.lights{display:flex;justify-content:space-around;margin:18px 0 10px;padding:5px;border-radius:12px;transition:.3s;}
+.lights.ready{background:#1e40af;}
+.light{width:80px;height:80px;border-radius:50%;background:#1f2937;opacity:.25;transition:.3s}
+.light.red.active{background:#ef4444;opacity:1;box-shadow:0 0 25px rgba(239,68,68,.8)}
+.light.green.active{background:#22c55e;opacity:1;box-shadow:0 0 25px rgba(34,197,94,.8)}
+.light.amber.active{background:#f59e0b;opacity:1;box-shadow:0 0 25px rgba(245,158,11,.9)}
+#message{text-align:center;min-height:48px;font-size:1.1rem;font-weight:600;margin-bottom:10px}
+#countdown{text-align:center;font-size:1rem;color:#60a5fa;margin-bottom:8px;}
+.stopwatch{text-align:center;font-size:.9rem;color:#9ca3af}
+
+button{width:100%;padding:12px;border-radius:999px;border:none;background:#1d4ed8;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;margin-top:10px}
+button.secondary{background:#374151}
+button.secondary.active{background:#1e40af}
+
+input[type="text"]{
   width:100%;
   padding:10px;
   border-radius:10px;
   border:none;
-  margin-bottom:10px;
+  background:#020617;
+  color:#e5e7eb;
 }
-button{
+
+iframe{
   width:100%;
-  padding:14px;
-  border-radius:999px;
+  aspect-ratio:16/9;
   border:none;
-  background:#1d4ed8;
-  color:white;
-  font-size:1rem;
-  font-weight:700;
-  cursor:pointer;
-}
-button:disabled{opacity:.5;}
-#imageBox{
-  margin-top:14px;
   border-radius:12px;
-  overflow:hidden;
-  display:none;
-}
-#imageBox img{
-  width:100%;
-}
-#status{
-  text-align:center;
-  margin-top:10px;
-  min-height:24px;
-  font-weight:600;
+  margin-top:12px;
 }
 </style>
 </head>
 
 <body>
 <div class="panel">
-  <h1>Snakes & Tempo</h1>
+<h1>Red Light Green Light</h1>
 
-  <input id="subredditInput" placeholder="Enter subreddit (e.g. gifs)" />
+<div class="section">
+<label>YouTube video or playlist URL</label>
+<input type="text" id="ytInput" placeholder="Paste YouTube link here">
+</div>
 
-  <div class="stat"><span>Square</span><span id="square">1</span></div>
-  <div class="stat"><span>Last Roll</span><span id="roll">–</span></div>
-  <div class="stat"><span>Metronome</span><span id="bpm">–</span></div>
+<div id="playerContainer"></div>
 
-  <button id="rollBtn">Roll Dice</button>
+<div id="countdown"></div>
 
-  <div id="imageBox"><img id="img"></div>
-  <div id="status"></div>
+<div class="lights" id="lightsContainer">
+<div id="red" class="light red"></div>
+<div id="amber" class="light amber"></div>
+<div id="green" class="light green"></div>
+</div>
+
+<div id="message"></div>
+<div class="stopwatch" id="stopwatch">00:00</div>
+
+<button id="startBtn">Start</button>
+<button id="readyBtn" class="secondary">Ready Mode</button>
+<button id="resetBtn" class="secondary">Reset</button>
 </div>
 
 <script>
+/* ========= YOUTUBE EMBED ========= */
+const ytInput = document.getElementById('ytInput');
+const playerContainer = document.getElementById('playerContainer');
+
+function loadYouTube(url){
+  let embed = '';
+  try{
+    const u = new URL(url);
+
+    if(u.searchParams.get('list')){
+      const list = u.searchParams.get('list');
+      embed = `https://www.youtube.com/embed/videoseries?list=${list}&autoplay=1&mute=1`;
+    }else{
+      const id =
+        u.searchParams.get('v') ||
+        u.pathname.split('/').pop();
+      embed = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+    }
+
+    playerContainer.innerHTML =
+      `<iframe allow="autoplay; encrypted-media" allowfullscreen src="${embed}"></iframe>`;
+  }catch(e){
+    playerContainer.innerHTML = '';
+  }
+}
+
+ytInput.addEventListener('change', e=>{
+  if(e.target.value.trim()) loadYouTube(e.target.value.trim());
+});
+
 /* ========= AUDIO ========= */
 let audioCtx;
-function initAudio(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  }
-}
-function clickSound(){
+function initAudio(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}}
+function tone(freq,d=0.25,g=0.25){
   initAudio();
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.type = "square";
-  o.frequency.value = 800;
-  g.gain.value = 0.15;
-  o.connect(g).connect(audioCtx.destination);
+  const o=audioCtx.createOscillator();
+  const ga=audioCtx.createGain();
+  o.connect(ga).connect(audioCtx.destination);
+  o.frequency.value=freq;
+  ga.gain.value=g;
   o.start();
-  o.stop(audioCtx.currentTime + 0.05);
+  o.stop(audioCtx.currentTime+d);
+}
+function beep(type){
+  if(type==='green') tone(750);
+  if(type==='red') tone(300);
+  if(type==='amber') tone(520,0.35);
+  if(type==='cum'){tone(1200,0.2);setTimeout(()=>tone(1000,0.25),250);}
 }
 
-/* ========= GAME STATE ========= */
-let position = 1;
-let locked = false;
-let metroTimer, stopTimer;
+/* ========= GAME CORE (unchanged logic) ========= */
+const authorityRed=['Hands off your cock','No touching','Hands off','Discipline required','No you dont'];
+const greenTexts=['Fuck youself','Jerk jerk jerk','Jerk that cock','Up and down, up and down','Jerk it'];
 
-/* ========= SNAKES & LADDERS ========= */
-const jumps = {
-  4:14, 9:31, 17:7, 20:38, 28:84,
-  40:59, 51:67, 54:34, 62:19,
-  64:81, 71:91, 87:24, 93:73, 95:75, 99:78
-};
+let phase=null,timer=null;
+let rtcActive=false,rtcTimers=[];
+const redDur=5,greenDur=15;
 
-/* ========= BPM RANGES ========= */
-function bpmForSquare(n){
-  if(n<=10) return rand(1,2);
-  if(n<=20) return rand(2,3);
-  if(n<=30) return rand(2,4);
-  if(n<=40) return rand(3,4);
-  if(n<=50) return rand(3,5);
-  if(n<=60) return rand(4,5);
-  if(n<=70) return rand(4,6);
-  if(n<=80) return rand(5,6);
-  if(n<=90) return rand(5,6);
-  return 6;
-}
+function clearLights(){['red','green','amber'].forEach(id=>document.getElementById(id).classList.remove('active'));}
 
-function rand(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-
-/* ========= REDDIT IMAGE ========= */
-async function fetchImage(sub){
-  try{
-    const url = `https://corsproxy.io/?https://www.reddit.com/r/${sub}/hot.json?limit=50`;
-    const r = await fetch(url);
-    const j = await r.json();
-    const posts = j.data.children
-      .map(p=>p.data)
-      .filter(p=>p.url && (p.url.endsWith(".jpg")||p.url.endsWith(".png")||p.url.endsWith(".gif")));
-    if(posts.length===0) return null;
-    return posts[Math.floor(Math.random()*posts.length)].url;
-  }catch{
-    return null;
-  }
-}
-
-/* ========= TURN LOGIC ========= */
-rollBtn.onclick = async ()=>{
+function readyMode(){
   initAudio();
-  if(locked) return;
+  if(rtcActive) return;
+  rtcActive=true;
 
-  locked = true;
-  rollBtn.disabled = true;
+  readyBtn.classList.add('active');
+  lightsContainer.classList.add('ready');
 
-  const die = rand(1,6);
-  roll.textContent = die;
+  let verdictCountdown=60;
+  countdown.textContent=`Verdict in: ${verdictCountdown}s`;
 
-  position += die;
-  if(position>100) position = 100;
+  function loop(){
+    phase = phase==='red'?'green':'red';
+    clearLights();
+    document.getElementById(phase).classList.add('active');
+    beep(phase);
+    message.textContent =
+      phase==='red'
+        ? authorityRed[Math.floor(Math.random()*authorityRed.length)]
+        : greenTexts[Math.floor(Math.random()*greenTexts.length)];
 
-  if(jumps[position]){
-    position = jumps[position];
+    rtcTimers.push(setTimeout(loop, phase==='red'?redDur*1000:greenDur*1000));
   }
 
-  square.textContent = position;
+  phase='red';
+  document.getElementById('red').classList.add('active');
+  message.textContent=authorityRed[Math.floor(Math.random()*authorityRed.length)];
+  beep('red');
+  rtcTimers.push(setTimeout(loop, redDur*1000));
 
-  const bpmVal = bpmForSquare(position);
-  bpm.textContent = bpmVal + " bpm";
+  const cd=setInterval(()=>{
+    verdictCountdown--;
+    countdown.textContent=`Verdict in: ${verdictCountdown}s`;
+    if(verdictCountdown<=0) clearInterval(cd);
+  },1000);
 
-  const duration = rand(10,30);
-  status.textContent = `Playing for ${duration}s`;
+  rtcTimers.push(setTimeout(()=>{
+    rtcTimers.forEach(t=>clearTimeout(t));
+    clearLights();
+    lightsContainer.classList.remove('ready');
+    readyBtn.classList.remove('active');
+    countdown.textContent='';
+    message.textContent='Verdict incoming...';
 
-  const sub = subredditInput.value.trim() || "gifs";
-  const imgUrl = await fetchImage(sub);
+    setTimeout(()=>{
+      if(Math.random()<0.5){
+        message.textContent='Cum now';
+        document.getElementById('green').classList.add('active');
+        beep('cum');
+      }else{
+        message.textContent='Denied';
+        beep('amber');
+        rtcActive=false;
+        readyMode();
+      }
+    },2500);
+  },60000));
+}
 
-  if(imgUrl){
-    img.src = imgUrl;
-    imageBox.style.display = "block";
-  }
-
-  const interval = 60000 / bpmVal;
-  metroTimer = setInterval(clickSound, interval);
-
-  stopTimer = setTimeout(()=>{
-    clearInterval(metroTimer);
-    imageBox.style.display = "none";
-    status.textContent = "Roll again";
-    rollBtn.disabled = false;
-    locked = false;
-  }, duration*1000);
-};
+readyBtn.onclick=readyMode;
+startBtn.onclick=initAudio;
+resetBtn.onclick=()=>location.reload();
 </script>
 </body>
 </html>
