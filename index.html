@@ -6,23 +6,78 @@
 <title>Red Light Green Light</title>
 
 <style>
-body{font-family:system-ui,sans-serif;background:#0f172a;color:#e5e7eb;display:flex;justify-content:center;padding:20px;}
-.panel{background:#020617;padding:20px;border-radius:14px;width:380px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.6);}
+body{
+  font-family:system-ui,sans-serif;
+  background:#0f172a;
+  color:#e5e7eb;
+  margin:0;
+  padding:0;
+}
+
+/* VIDEO AREA */
+#videoWrap{
+  width:100%;
+  background:#000;
+}
+#videoWrap iframe{
+  width:100%;
+  aspect-ratio:16/9;
+  border:none;
+}
+
+/* CONTROL PANEL */
+.panel{
+  background:#020617;
+  padding:20px;
+  border-radius:14px;
+  max-width:420px;
+  margin:20px auto;
+  box-shadow:0 20px 40px rgba(0,0,0,.6);
+}
+
 h1{text-align:center;margin-top:0}
 .section{margin-bottom:16px}
 label{font-size:.9rem;color:#cbd5f5}
 .row{display:flex;gap:10px;flex-wrap:wrap}
-.lights{display:flex;justify-content:space-around;margin:18px 0 10px;padding:5px;border-radius:12px;transition:.3s;}
+
+.lights{
+  display:flex;
+  justify-content:space-around;
+  margin:18px 0 10px;
+  padding:5px;
+  border-radius:12px;
+  transition:.3s;
+}
 .lights.ready{background:#1e40af;}
-.light{width:80px;height:80px;border-radius:50%;background:#1f2937;opacity:.25;transition:.3s}
+
+.light{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:#1f2937;
+  opacity:.25;
+  transition:.3s;
+}
 .light.red.active{background:#ef4444;opacity:1;box-shadow:0 0 25px rgba(239,68,68,.8)}
 .light.green.active{background:#22c55e;opacity:1;box-shadow:0 0 25px rgba(34,197,94,.8)}
 .light.amber.active{background:#f59e0b;opacity:1;box-shadow:0 0 25px rgba(245,158,11,.9)}
-#message{text-align:center;min-height:48px;font-size:1.1rem;font-weight:600;margin-bottom:10px}
-#countdown{text-align:center;font-size:1rem;color:#60a5fa;margin-bottom:8px;}
-.stopwatch{text-align:center;font-size:.9rem;color:#9ca3af}
 
-button{width:100%;padding:12px;border-radius:999px;border:none;background:#1d4ed8;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;margin-top:10px}
+#message{text-align:center;min-height:48px;font-size:1.1rem;font-weight:600;margin-bottom:6px}
+#countdown{text-align:center;color:#60a5fa;margin-bottom:6px}
+.stopwatch{text-align:center;font-size:.85rem;color:#9ca3af}
+
+button{
+  width:100%;
+  padding:12px;
+  border-radius:999px;
+  border:none;
+  background:#1d4ed8;
+  color:#fff;
+  font-size:1rem;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:10px;
+}
 button.secondary{background:#374151}
 button.secondary.active{background:#1e40af}
 
@@ -34,27 +89,22 @@ input[type="text"]{
   background:#020617;
   color:#e5e7eb;
 }
-
-iframe{
-  width:100%;
-  aspect-ratio:16/9;
-  border:none;
-  border-radius:12px;
-  margin-top:12px;
-}
 </style>
 </head>
 
 <body>
+
+<!-- VIDEO -->
+<div id="videoWrap"></div>
+
+<!-- CONTROLS -->
 <div class="panel">
 <h1>Red Light Green Light</h1>
 
 <div class="section">
-<label>YouTube video or playlist URL</label>
-<input type="text" id="ytInput" placeholder="Paste YouTube link here">
+<label>YouTube video or playlist</label>
+<input type="text" id="ytInput" placeholder="Paste YouTube link">
 </div>
-
-<div id="playerContainer"></div>
 
 <div id="countdown"></div>
 
@@ -68,115 +118,140 @@ iframe{
 <div class="stopwatch" id="stopwatch">00:00</div>
 
 <button id="startBtn">Start</button>
-<button id="readyBtn" class="secondary">Ready Mode</button>
+<button id="readyBtn" class="secondary" disabled>Ready Mode</button>
 <button id="resetBtn" class="secondary">Reset</button>
 </div>
 
 <script>
-/* ========= YOUTUBE EMBED ========= */
-const ytInput = document.getElementById('ytInput');
-const playerContainer = document.getElementById('playerContainer');
+/* ========= YOUTUBE ========= */
+const ytInput=document.getElementById('ytInput');
+const videoWrap=document.getElementById('videoWrap');
 
-function loadYouTube(url){
-  let embed = '';
+function loadYT(url){
   try{
-    const u = new URL(url);
-
+    const u=new URL(url);
+    let src='';
     if(u.searchParams.get('list')){
-      const list = u.searchParams.get('list');
-      embed = `https://www.youtube.com/embed/videoseries?list=${list}&autoplay=1&mute=1`;
+      src=`https://www.youtube.com/embed/videoseries?list=${u.searchParams.get('list')}&autoplay=1&mute=1`;
     }else{
-      const id =
-        u.searchParams.get('v') ||
-        u.pathname.split('/').pop();
-      embed = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+      const id=u.searchParams.get('v')||u.pathname.split('/').pop();
+      src=`https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
     }
-
-    playerContainer.innerHTML =
-      `<iframe allow="autoplay; encrypted-media" allowfullscreen src="${embed}"></iframe>`;
-  }catch(e){
-    playerContainer.innerHTML = '';
-  }
+    videoWrap.innerHTML=`<iframe allow="autoplay; encrypted-media" allowfullscreen src="${src}"></iframe>`;
+  }catch{}
 }
-
-ytInput.addEventListener('change', e=>{
-  if(e.target.value.trim()) loadYouTube(e.target.value.trim());
-});
+ytInput.onchange=e=>loadYT(e.target.value);
 
 /* ========= AUDIO ========= */
 let audioCtx;
-function initAudio(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}}
-function tone(freq,d=0.25,g=0.25){
+function initAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+}
+function tone(f,d=0.25,g=0.25){
   initAudio();
   const o=audioCtx.createOscillator();
   const ga=audioCtx.createGain();
   o.connect(ga).connect(audioCtx.destination);
-  o.frequency.value=freq;
+  o.frequency.value=f;
   ga.gain.value=g;
   o.start();
   o.stop(audioCtx.currentTime+d);
 }
-function beep(type){
-  if(type==='green') tone(750);
-  if(type==='red') tone(300);
-  if(type==='amber') tone(520,0.35);
-  if(type==='cum'){tone(1200,0.2);setTimeout(()=>tone(1000,0.25),250);}
+function beep(t){
+  if(t==='red')tone(300);
+  if(t==='green')tone(750);
+  if(t==='amber')tone(520,0.35);
+  if(t==='cum'){tone(1200,0.2);setTimeout(()=>tone(1000,0.25),250);}
 }
 
-/* ========= GAME CORE (unchanged logic) ========= */
+/* ========= GAME ========= */
 const authorityRed=['Hands off your cock','No touching','Hands off','Discipline required','No you dont'];
 const greenTexts=['Fuck youself','Jerk jerk jerk','Jerk that cock','Up and down, up and down','Jerk it'];
 
-let phase=null,timer=null;
+let phase=null,timer=null,stopwatchTimer=null,seconds=0;
 let rtcActive=false,rtcTimers=[];
-const redDur=5,greenDur=15;
 
-function clearLights(){['red','green','amber'].forEach(id=>document.getElementById(id).classList.remove('active'));}
+function clearLights(){
+  ['red','green','amber'].forEach(id=>document.getElementById(id).classList.remove('active'));
+}
+
+function setPhase(p,d){
+  phase=p;
+  clearLights();
+  document.getElementById(p).classList.add('active');
+  beep(p);
+  message.textContent=
+    p==='red'
+      ?authorityRed[Math.floor(Math.random()*authorityRed.length)]
+      :greenTexts[Math.floor(Math.random()*greenTexts.length)];
+  setTimeout(nextPhase,d*1000);
+}
+
+function nextPhase(){
+  if(rtcActive) return;
+  setPhase(phase==='red'?'green':'red', phase==='red'?15:5);
+}
+
+function startGame(){
+  initAudio();
+  if(timer) return;
+  seconds=0;
+  stopwatchTimer=setInterval(()=>{
+    seconds++;
+    stopwatch.textContent=
+      String(Math.floor(seconds/60)).padStart(2,'0')+':'+
+      String(seconds%60).padStart(2,'0');
+  },1000);
+  setPhase('red',5);
+  readyBtn.disabled=false;
+}
+
+function clearRTC(){rtcTimers.forEach(t=>clearTimeout(t));rtcTimers=[];}
 
 function readyMode(){
-  initAudio();
   if(rtcActive) return;
   rtcActive=true;
+  clearInterval(timer);
+  clearRTC();
 
-  readyBtn.classList.add('active');
   lightsContainer.classList.add('ready');
+  readyBtn.classList.add('active');
 
-  let verdictCountdown=60;
-  countdown.textContent=`Verdict in: ${verdictCountdown}s`;
+  let countdown=60;
+  countdownEl.textContent=`Verdict in: ${countdown}s`;
 
   function loop(){
-    phase = phase==='red'?'green':'red';
+    if(!rtcActive) return;
+    phase=phase==='red'?'green':'red';
     clearLights();
     document.getElementById(phase).classList.add('active');
     beep(phase);
-    message.textContent =
+    message.textContent=
       phase==='red'
-        ? authorityRed[Math.floor(Math.random()*authorityRed.length)]
-        : greenTexts[Math.floor(Math.random()*greenTexts.length)];
-
-    rtcTimers.push(setTimeout(loop, phase==='red'?redDur*1000:greenDur*1000));
+        ?authorityRed[Math.floor(Math.random()*authorityRed.length)]
+        :greenTexts[Math.floor(Math.random()*greenTexts.length)];
+    rtcTimers.push(setTimeout(loop, phase==='red'?5000:15000));
   }
 
   phase='red';
   document.getElementById('red').classList.add('active');
   message.textContent=authorityRed[Math.floor(Math.random()*authorityRed.length)];
   beep('red');
-  rtcTimers.push(setTimeout(loop, redDur*1000));
+  rtcTimers.push(setTimeout(loop,5000));
 
   const cd=setInterval(()=>{
-    verdictCountdown--;
-    countdown.textContent=`Verdict in: ${verdictCountdown}s`;
-    if(verdictCountdown<=0) clearInterval(cd);
+    countdown--;
+    countdownEl.textContent=`Verdict in: ${countdown}s`;
+    if(countdown<=0) clearInterval(cd);
   },1000);
 
   rtcTimers.push(setTimeout(()=>{
-    rtcTimers.forEach(t=>clearTimeout(t));
+    clearRTC();
     clearLights();
     lightsContainer.classList.remove('ready');
     readyBtn.classList.remove('active');
-    countdown.textContent='';
+    countdownEl.textContent='';
     message.textContent='Verdict incoming...';
-
     setTimeout(()=>{
       if(Math.random()<0.5){
         message.textContent='Cum now';
@@ -192,9 +267,12 @@ function readyMode(){
   },60000));
 }
 
+/* ========= EVENTS ========= */
+startBtn.onclick=startGame;
 readyBtn.onclick=readyMode;
-startBtn.onclick=initAudio;
 resetBtn.onclick=()=>location.reload();
+
+const countdownEl=document.getElementById('countdown');
 </script>
 </body>
 </html>
